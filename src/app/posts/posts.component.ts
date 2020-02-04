@@ -1,5 +1,8 @@
+import { BadInput } from './../common/bad-input';
+import { NotFoundError } from './../common/not-found-error';
 import { Component, OnInit } from '@angular/core';
 import { PostService } from './../services/post.service';
+import { AppError } from './../common/app-error';
 
 @Component({
   selector: 'app-posts',
@@ -15,9 +18,10 @@ export class PostsComponent implements OnInit {
 
   ngOnInit() {
     this.service.getPosts()
-      .subscribe(response => {
-        this.posts = response;
-      });
+      .subscribe(
+        response => {
+          this.posts = response;
+        });
   }
 
   createPost(input: HTMLInputElement) {
@@ -25,24 +29,46 @@ export class PostsComponent implements OnInit {
     input.value = '';
 
     this.service.createPost(post)
-      .subscribe((response: any) => {
-        post['id'] = response.id;
-        this.posts.splice(0, 0, post);
-      });
+      .subscribe(
+        (response: any) => {
+          post['id'] = response.id;
+          this.posts.splice(0, 0, post);
+        },
+        (error: AppError) => {
+          console.log(error);
+
+          if (error instanceof BadInput) {
+            // this.form.setErrors(error.originalError);
+          }
+          else {
+            throw error;
+          }
+        });
   }
 
   updatePost(post) {
     this.service.updatePost(post)
-      .subscribe(response => {
-        console.log(response);
-      });
+      .subscribe(
+        response => {
+          console.log(response);
+        });
   }
 
   deletePost(post) {
-    this.service.deletePost(post.id)
-      .subscribe(response => {
-        let index = this.posts.indexOf(post);
-        this.posts.splice(index, 1);
-      });
+    // this.service.deletePost(post.id)
+    this.service.deletePost('abc/aa')
+      .subscribe(
+        response => {
+          console.log(response); // it's empty object
+          let index = this.posts.indexOf(post);
+          this.posts.splice(index, 1);
+        },
+        (error: AppError) => {
+          if (error instanceof NotFoundError)
+            alert('This post has already been deleted.');
+          else {
+            throw error;
+          }
+        });
   }
 }
