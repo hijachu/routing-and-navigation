@@ -21,6 +21,8 @@ export class DataService {
   }
 
   create(resource) {
+    // return throwError(new AppError());
+
     return this.http.post(this.url, JSON.stringify(resource))
       .pipe(catchError(this.handleError));
   }
@@ -31,6 +33,8 @@ export class DataService {
   }
 
   delete(id) {
+    // return throwError(new AppError());
+
     return this.http.delete(this.url + '/' + id)
       .pipe(catchError(this.handleError));
   }
